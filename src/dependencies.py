@@ -1,3 +1,7 @@
+from typing import Annotated
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
 from .database import SessionLocal
 
 
@@ -7,3 +11,6 @@ def get_session():
         yield session
     finally:
         session.close()
+
+
+DBSession = Annotated[Session, Depends(get_session)]

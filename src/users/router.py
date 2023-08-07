@@ -4,7 +4,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from ..schemas import Message
-from ..dependencies import get_session
+from ..dependencies import DBSession
 
 from .models import UserModel
 from .schemas import UserResponse, UserCreate, UserUpdate
@@ -12,7 +12,6 @@ from .services import UserService
 from .validation import get_validated_user, get_email_validated_user
 
 router = APIRouter(prefix="/users", tags=["Users"])
-DBSession = Annotated[Session, Depends(get_session)]
 ValidatedUser = Annotated[UserModel, Depends(get_validated_user)]
 ValidatedUserCreate = Annotated[UserCreate, Depends(get_email_validated_user)]
 ValidatedUserUpdate = Annotated[UserUpdate, Depends(get_email_validated_user)]
