@@ -1,6 +1,6 @@
-def encode(string: str):
-    return f"{string}.hashed"
+from passlib.context import CryptContext
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def decode(string: str):
-    return f"{string.split('.')[0]}"
+def get_password_hash(password):
+    return pwd_context.hash(password)
