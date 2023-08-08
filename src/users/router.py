@@ -6,7 +6,7 @@ from ..auth.dependencies import CurrentUser
 
 from .schemas import UserResponse
 from .services import UserService
-from .validation import ValidatedUser, ValidatedUserCreate, ValidatedUserUpdate
+from .dependencies import ValidUser, ValidUserCreate, ValidUserUpdate
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -22,13 +22,13 @@ def get_current_user(user: CurrentUser):
 
 
 @router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def get_user(user: ValidatedUser):
+def get_user(user: ValidUser):
     return user
 
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(
-    user: ValidatedUserCreate,
+    user: ValidUserCreate,
     session: DBSession,
 ):
     return UserService.create_user(user, session)
@@ -36,14 +36,14 @@ def create_user(
 
 @router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
 def update_user(
-    user: ValidatedUser,
-    update_data: ValidatedUserUpdate,
+    user: ValidUser,
+    update_data: ValidUserUpdate,
     session: DBSession,
 ):
     return UserService.update_user(user, update_data, session)
 
 
 @router.delete("/{user_id}", response_model=Message, status_code=status.HTTP_200_OK)
-def delete_user(user: ValidatedUser, session: DBSession):
+def delete_user(user: ValidUser, session: DBSession):
     UserService.delete_user(user, session)
     return Message(message="User deleted succefully")

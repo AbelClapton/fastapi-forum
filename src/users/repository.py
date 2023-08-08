@@ -1,4 +1,5 @@
 from fastapi import Depends
+from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from ..hasher import hash
@@ -9,19 +10,19 @@ from .schemas import UserCreate, UserUpdate
 
 class UserRepo:
     @staticmethod
-    def get_users(skip: int, limit: int, session: Session):
+    def get_users(skip: int, limit: int, session: Session) -> list[UserModel]:
         return session.query(UserModel).offset(skip).limit(limit).all()
 
     @staticmethod
-    def get_user(user_id: int, session: Session) -> UserModel | None:
+    def get_user(user_id: UUID4, session: Session) -> UserModel | None:
         return session.query(UserModel).filter(UserModel.id == user_id).first()
 
     @staticmethod
-    def get_user_by_email(email: str, session: Session):
+    def get_user_by_email(email: str, session: Session) -> UserModel | None:
         return session.query(UserModel).filter(UserModel.email == email).first()
 
     @staticmethod
-    def create_user(user: UserCreate, session: Session):
+    def create_user(user: UserCreate, session: Session) -> UserModel:
         db_user = UserModel(
             name=user.name, email=user.email, hashed_password=user.password
         )
@@ -47,6 +48,6 @@ class UserRepo:
         return user
 
     @staticmethod
-    def delete_user(user: UserModel, session: Session):
+    def delete_user(user: UserModel, session: Session) -> None:
         session.delete(user)
         session.commit()

@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, UUID4
 
 from ..posts.schemas import PostResponse
 
@@ -19,7 +19,7 @@ class UserUpdate(UserBase):
 
 
 class UserInDB(UserBase):
-    id: int
+    id: UUID4
     hashed_password: str
 
 

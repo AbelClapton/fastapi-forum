@@ -7,7 +7,7 @@ from ..exceptions import UnauthorizedException
 
 from .services import PostService
 from .schemas import PostResponse, PostCreate, PostUpdate
-from .validation import ValidatedPost, ValidatedOwnerPost
+from .dependencies import ValidPost, ValidOwnedPost
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
@@ -18,7 +18,7 @@ def get_posts(session: DBSession):
 
 
 @router.get("/{post_id}", response_model=PostResponse, status_code=status.HTTP_200_OK)
-def get_post(post: ValidatedPost):
+def get_post(post: ValidPost):
     return post
 
 
@@ -29,17 +29,14 @@ def create_post(post: PostCreate, current_user: CurrentUser, session: DBSession)
 
 @router.put("/{post_id}", response_model=PostResponse, status_code=status.HTTP_200_OK)
 def update_post(
-    post: ValidatedPost,
+    post: ValidOwnedPost,
     update_data: PostUpdate,
-    current_user: CurrentUser,
     session: DBSession,
 ):
-    if not post.owner_id == current_user.id:
-        raise UnauthorizedException()
     return PostService.update_post(post, update_data, session)
 
 
 @router.delete("/{post_id}", response_model=Message, status_code=status.HTTP_200_OK)
-def delete_post(post: ValidatedOwnerPost, session: DBSession):
+def delete_post(post: ValidOwnedPost, session: DBSession):
     PostService.delete_post(post, session)
-    return {"message": "Post deleted successfully"}
+    return Message(message="Post deleted successfully")

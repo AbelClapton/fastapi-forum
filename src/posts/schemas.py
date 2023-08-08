@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, UUID4
 
 
 class PostBase(BaseModel):
@@ -16,7 +16,7 @@ class PostUpdate(PostBase):
 
 class DBPost(PostBase):
     id: int
-    owner_id: int
+    owner_id: UUID4
 
 
 class PostResponse(DBPost):
