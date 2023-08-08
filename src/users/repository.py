@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from ..hasher import get_password_hash
+from ..hasher import hash
 
 from .models import UserModel
 from .schemas import UserCreate, UserUpdate
@@ -32,21 +32,19 @@ class UserRepo:
         return db_user
 
     @staticmethod
-    def update_user(user_id: int, user: UserUpdate, session: Session):
-        db_user: UserModel = UserRepo.get_user(user_id, session)
-        if not db_user:
-            return
-
-        if user.name:
-            db_user.name = user.name
-        if user.email:
-            db_user.email = user.email
-        if user.password:
-            db_user.hashed_password = get_password_hash(user.password)
+    def update_user(
+        user: UserModel, update_data: UserUpdate, session: Session
+    ) -> UserModel:
+        if update_data.name:
+            user.name = update_data.name
+        if update_data.email:
+            user.email = update_data.email
+        if update_data.password:
+            user.hashed_password = hash(update_data.password)
 
         session.commit()
-        session.refresh(db_user)
-        return db_user
+        session.refresh(user)
+        return user
 
     @staticmethod
     def delete_user(user: UserModel, session: Session):

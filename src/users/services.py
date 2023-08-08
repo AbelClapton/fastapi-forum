@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from ..hasher import get_password_hash
+from ..hasher import hash
 
 from .models import UserModel
 from .schemas import UserCreate, UserUpdate
@@ -18,12 +18,13 @@ class UserService:
 
     @staticmethod
     def create_user(user: UserCreate, session: Session):
-        user.password = get_password_hash(user.password)
+        print(user.password)
+        user.password = hash(user.password)
         return UserRepo.create_user(user, session)
 
     @staticmethod
-    def update_user(user_id: int, user: UserUpdate, session: Session):
-        return UserRepo.update_user(user_id, user, session)
+    def update_user(user: UserModel, update_data: UserUpdate, session: Session):
+        return UserRepo.update_user(user, update_data, session)
 
     @staticmethod
     def delete_user(user: UserModel, session: Session):

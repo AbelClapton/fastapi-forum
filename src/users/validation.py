@@ -1,11 +1,11 @@
 from typing import Annotated
 from fastapi import Depends
-from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from ..dependencies import get_session
 
 from .repository import UserRepo
+from .models import UserModel
 from .schemas import UserCreate, UserUpdate
 from .exceptions import UserNotFoundException, UserEmailAlreadyExistsException
 
@@ -24,3 +24,8 @@ def get_email_validated_user(user: UserCreate | UserUpdate, session: DBSession):
     if db_user:
         raise UserEmailAlreadyExistsException()
     return user
+
+
+ValidatedUser = Annotated[UserModel, Depends(get_validated_user)]
+ValidatedUserCreate = Annotated[UserCreate, Depends(get_email_validated_user)]
+ValidatedUserUpdate = Annotated[UserUpdate, Depends(get_email_validated_user)]

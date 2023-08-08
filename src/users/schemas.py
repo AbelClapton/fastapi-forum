@@ -1,11 +1,13 @@
 from typing import Optional
-
 from pydantic import BaseModel, EmailStr
+
+from ..posts.schemas import PostResponse
 
 
 class UserBase(BaseModel):
     name: Optional[str] = None
     email: EmailStr
+    is_active: bool
 
 
 class UserCreate(UserBase):
@@ -23,6 +25,7 @@ class UserInDB(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    posts: list[PostResponse]
 
     class Config:
         orm_mode = True

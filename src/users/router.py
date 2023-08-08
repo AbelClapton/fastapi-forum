@@ -1,25 +1,24 @@
-from typing import Annotated
-from fastapi import APIRouter, Depends, status
-from pydantic import EmailStr
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, status
 
 from ..schemas import Message
 from ..dependencies import DBSession
+from ..auth.dependencies import CurrentUser
 
-from .models import UserModel
-from .schemas import UserResponse, UserCreate, UserUpdate
+from .schemas import UserResponse
 from .services import UserService
-from .validation import get_validated_user, get_email_validated_user
+from .validation import ValidatedUser, ValidatedUserCreate, ValidatedUserUpdate
 
 router = APIRouter(prefix="/users", tags=["Users"])
-ValidatedUser = Annotated[UserModel, Depends(get_validated_user)]
-ValidatedUserCreate = Annotated[UserCreate, Depends(get_email_validated_user)]
-ValidatedUserUpdate = Annotated[UserUpdate, Depends(get_email_validated_user)]
 
 
 @router.get("/", response_model=list[UserResponse], status_code=status.HTTP_200_OK)
 def get_users(session: DBSession, skip: int = 0, limit: int = 10):
     return UserService.get_users(skip, limit, session)
+
+
+@router.get("/me", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_current_user(user: CurrentUser):
+    return user
 
 
 @router.get("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
@@ -41,10 +40,10 @@ def update_user(
     update_data: ValidatedUserUpdate,
     session: DBSession,
 ):
-    return UserService.update_user(user.id, update_data, session)
+    return UserService.update_user(user, update_data, session)
 
 
 @router.delete("/{user_id}", response_model=Message, status_code=status.HTTP_200_OK)
 def delete_user(user: ValidatedUser, session: DBSession):
-    if UserService.delete_user(user, session):
-        return Message(message="User deleted succefully")
+    UserService.delete_user(user, session)
+    return Message(message="User deleted succefully")
